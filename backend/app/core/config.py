@@ -35,7 +35,11 @@ class Settings(BaseSettings):
 
     # CORS
     FRONTEND_URL: str = ""
-    ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://localhost:3001"]
+    ALLOWED_ORIGINS: list = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://cold-email-ai-ecru.vercel.app",
+    ]
 
     class Config:
         env_file = ".env"
