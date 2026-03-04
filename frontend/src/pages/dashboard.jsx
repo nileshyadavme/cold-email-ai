@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 import Sidebar from "../components/layout/Sidebar";
 import EmailResult from "../components/ui/EmailResult";
 import { generateEmail } from "../utils/api";
-import { Wand2, Link, User, Building2, ChevronDown } from "lucide-react";
+import { Wand2, Link, User, Building2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "../hooks/useAuth";
 
 const TONES = ["professional", "friendly", "direct", "creative"];
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { refreshUser } = useAuth();
+  const quotaRef = useRef(null);
+
   const [form, setForm] = useState({
     prospect_url: "",
     prospect_name: "",
@@ -24,6 +30,17 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [mode, setMode] = useState("url"); // "url" or "manual"
+
+  // Detect Stripe redirect with ?upgraded=true and refresh plan + quota
+  useEffect(() => {
+    if (router.query.upgraded === "true") {
+      toast.success("🎉 Plan upgraded successfully!", { duration: 5000 });
+      // Re-fetch the latest user plan from backend
+      refreshUser?.();
+      // Clean URL without reloading
+      router.replace("/dashboard", undefined, { shallow: true });
+    }
+  }, [router.query.upgraded]);
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -73,7 +90,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar />
+      <Sidebar quotaRef={quotaRef} />
 
       <main style={{ marginLeft: 220, flex: 1, padding: "32px 40px", maxWidth: 900 }}>
         {/* Header */}
@@ -220,7 +237,7 @@ export default function Dashboard() {
                   Scraping prospect data...
                 </p>
                 <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>
-                  GPT-4 is crafting your email
+                  AI is crafting your email
                 </p>
               </div>
             )}

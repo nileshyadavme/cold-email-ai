@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import * as api from "../utils/api";
 import toast from "react-hot-toast";
@@ -10,11 +10,27 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
-    setLoading(false);
+  const refreshUser = useCallback(async () => {
+    try {
+      const { data } = await api.getProfile();
+      const updatedUser = { ...data };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return updatedUser;
+    } catch {
+      return null;
+    }
   }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Always re-fetch from backend to get the latest plan (not stale localStorage cache)
+      refreshUser().finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [refreshUser]);
 
   const loginFn = async (email, password) => {
     const { data } = await api.login({ email, password });
@@ -41,10 +57,11 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login: loginFn, register: registerFn, logout }}>
+    <AuthContext.Provider value={{ user, loading, login: loginFn, register: registerFn, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => useContext(AuthContext);
+

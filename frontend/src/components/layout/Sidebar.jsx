@@ -6,10 +6,10 @@ import QuotaBadge from "../ui/QuotaBadge";
 import clsx from "clsx";
 
 const NAV = [
-  { href: "/dashboard",  label: "Generate",  icon: Mail },
-  { href: "/bulk",       label: "Bulk",       icon: Users },
-  { href: "/history",    label: "History",    icon: History },
-  { href: "/pricing",    label: "Upgrade",    icon: CreditCard },
+  { href: "/dashboard", label: "Generate", icon: Mail },
+  { href: "/bulk", label: "Bulk", icon: Users },
+  { href: "/history", label: "History", icon: History },
+  { href: "/pricing", label: "Upgrade", icon: CreditCard },
 ];
 
 export default function Sidebar() {
@@ -70,8 +70,8 @@ export default function Sidebar() {
                 transition: "all 0.15s",
                 cursor: "pointer",
               }}
-              onMouseEnter={e => { if (!active) e.currentTarget.style.color = "var(--text-2)"; }}
-              onMouseLeave={e => { if (!active) e.currentTarget.style.color = "var(--muted)"; }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color = "var(--text-2)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color = "var(--muted)"; }}
               >
                 <Icon size={15} style={{ color: active ? "var(--primary)" : "inherit" }} />
                 {label}
@@ -88,7 +88,7 @@ export default function Sidebar() {
 
       {/* Quota */}
       <div style={{ padding: "0 10px 10px" }}>
-        <QuotaBadge />
+        <QuotaBadge key={user?.plan} />
       </div>
 
       {/* User */}
