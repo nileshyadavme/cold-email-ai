@@ -82,7 +82,7 @@ export default function Dashboard() {
             Generate Email
           </h1>
           <p style={{ color: "var(--muted)", fontSize: 14 }}>
-            Enter a prospect URL or fill in details manually — GPT-4 does the rest.
+            Enter a prospect URL or fill in details manually — AI does the rest.
           </p>
         </div>
 
