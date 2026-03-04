@@ -33,12 +33,11 @@ class Settings(BaseSettings):
     SCRAPE_TIMEOUT: int = 15
     MAX_BULK_PROSPECTS: int = 100
 
-    # CORS
+    # CORS - add production URL via FRONTEND_URL env var (set in Railway/Vercel)
     FRONTEND_URL: str = ""
     ALLOWED_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://cold-email-ai-ecru.vercel.app",
     ]
 
     class Config:
