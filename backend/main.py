@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, emails, users
 from app.core.config import settings
+from app.services.stripe_service import handle_webhook
 import logging
 
 logging.basicConfig(
@@ -30,6 +31,14 @@ app.add_middleware(
 app.include_router(auth.router,   prefix="/api/auth",   tags=["Auth"])
 app.include_router(emails.router, prefix="/api/emails", tags=["Emails"])
 app.include_router(users.router,  prefix="/api/users",  tags=["Users"])
+
+
+@app.post("/api/payments/webhook", tags=["Payments"])
+async def payments_webhook(request: Request):
+    """Dedicated Stripe webhook endpoint — configured in Stripe dashboard."""
+    payload = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+    return await handle_webhook(payload, sig)
 
 
 @app.get("/health")

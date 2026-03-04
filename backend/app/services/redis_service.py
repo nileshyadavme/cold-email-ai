@@ -110,6 +110,9 @@ async def update_user_plan(user_id: str, plan: str, stripe_customer_id: str = ""
         "plan": json.dumps(plan),
         "stripe_customer_id": json.dumps(stripe_customer_id),
     })
+    # Reset the current month's quota so new plan limits take effect immediately
+    quota_key = _quota_key(user_id)
+    await r.delete(quota_key)
 
 
 # ── Email History ─────────────────────────────────────────────────────
