@@ -15,11 +15,12 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     user = await get_user(current_user["user_id"])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    from app.services.redis_service import _normalize_plan
     return {
         "user_id": user["user_id"],
         "email": user["email"],
         "name": user["name"],
-        "plan": user.get("plan", "free"),
+        "plan": _normalize_plan(user.get("plan", "free")),
     }
 
 

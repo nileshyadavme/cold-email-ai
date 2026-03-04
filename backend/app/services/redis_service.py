@@ -29,6 +29,15 @@ async def get_redis() -> aioredis.Redis:
 
 # ── Rate Limiting ─────────────────────────────────────────────────────
 
+# ── Helpers ───────────────────────────────────────────────────────────
+
+def _normalize_plan(plan: str) -> str:
+    """Normalize plan string (handle enums and potential 'PlanType.business' string reps)."""
+    if hasattr(plan, "value"):
+        plan = plan.value
+    return str(plan).lower().split(".")[-1]
+
+
 def _quota_key(user_id: str) -> str:
     """Monthly quota key: resets on first day of each month."""
     month = datetime.utcnow().strftime("%Y-%m")
@@ -43,7 +52,7 @@ async def check_and_increment_quota(user_id: str, plan: str) -> dict:
     """
     r = await get_redis()
     key = _quota_key(user_id)
-    limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    limit = PLAN_LIMITS.get(_normalize_plan(plan), PLAN_LIMITS["free"])
 
     # Get current usage
     current = await r.get(key)
@@ -65,7 +74,7 @@ async def get_quota_usage(user_id: str, plan: str) -> dict:
     """Get current quota usage without incrementing."""
     r = await get_redis()
     key = _quota_key(user_id)
-    limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    limit = PLAN_LIMITS.get(_normalize_plan(plan), PLAN_LIMITS["free"])
     current = await r.get(key)
     used = int(current) if current else 0
     return {"used": used, "limit": limit, "remaining": max(0, limit - used)}
@@ -106,6 +115,8 @@ async def get_user_by_email(email: str) -> Optional[dict]:
 async def update_user_plan(user_id: str, plan: str, stripe_customer_id: str = ""):
     r = await get_redis()
     key = _user_key(user_id)
+    plan = _normalize_plan(plan)
+
     await r.hset(key, mapping={
         "plan": json.dumps(plan),
         "stripe_customer_id": json.dumps(stripe_customer_id),

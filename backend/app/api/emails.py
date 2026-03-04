@@ -27,9 +27,10 @@ async def generate_single_email(
     Generate a single personalised cold email.
     Scrapes URL if provided, otherwise uses manual prospect info.
     """
+    from app.services.redis_service import _normalize_plan
     user_id = current_user["user_id"]
     user = await get_user(user_id)
-    plan = user.get("plan", "free") if user else "free"
+    plan = _normalize_plan(user.get("plan", "free")) if user else "free"
 
     # Check quota
     quota = await check_and_increment_quota(user_id, plan)
@@ -90,8 +91,9 @@ async def get_history(
 async def get_quota(current_user: dict = Depends(get_current_user)):
     """Return the user's current quota usage."""
     user_id = current_user["user_id"]
+    from app.services.redis_service import _normalize_plan
     user = await get_user(user_id)
-    plan = user.get("plan", "free") if user else "free"
+    plan = _normalize_plan(user.get("plan", "free")) if user else "free"
     usage = await get_quota_usage(user_id, plan)
     return {**usage, "plan": plan}
 
@@ -118,9 +120,10 @@ async def start_bulk_job(
     if len(prospects) > 100:
         raise HTTPException(status_code=400, detail="Maximum 100 prospects per bulk job")
 
+    from app.services.redis_service import _normalize_plan
     user_id = current_user["user_id"]
     user = await get_user(user_id)
-    plan = user.get("plan", "free") if user else "free"
+    plan = _normalize_plan(user.get("plan", "free")) if user else "free"
     job_id = str(uuid.uuid4())
 
     # Save initial job status

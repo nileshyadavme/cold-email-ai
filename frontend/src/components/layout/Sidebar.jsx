@@ -88,7 +88,7 @@ export default function Sidebar() {
 
       {/* Quota */}
       <div style={{ padding: "0 10px 10px" }}>
-        <QuotaBadge key={user?.plan} />
+        <QuotaBadge key={(user?.plan || "free").toLowerCase().split(".").pop()} />
       </div>
 
       {/* User */}

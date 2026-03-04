@@ -52,7 +52,7 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const { user } = useAuth();
-  const currentPlan = user?.plan || "free";
+  const currentPlan = (user?.plan || "free").toLowerCase().split(".").pop();
   const isPaid = currentPlan !== "free";
 
   const handleUpgrade = async (plan) => {
