@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     MAX_BULK_PROSPECTS: int = 100
 
     # CORS
+    FRONTEND_URL: str = ""
     ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://localhost:3001"]
 
     class Config:

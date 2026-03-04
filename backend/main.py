@@ -15,9 +15,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+origins = settings.ALLOWED_ORIGINS.copy()
+if settings.FRONTEND_URL:
+    origins.append(settings.FRONTEND_URL)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
